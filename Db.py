@@ -1,5 +1,5 @@
 from database.initialize import initialize
-import sqlite3
+import sqlite3, datetime, calendar
 
 
 class Db:
@@ -59,7 +59,24 @@ class Db:
             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_calendar(self):  # TODO
-        pass
+        try:
+            self.cursor.execute('CREATE TABLE days (\'Day\',\'Entries\')')
+        except sqlite3.OperationalError:
+            self.cursor.execute('SELECT * FROM days ')
+            if self.cursor.fetchall()[0]:
+                raise sqlite3.OperationalError('Initialization already completed')
+
+        start = datetime.date(2000, 1, 1)
+        whead = calendar.weekheader(3).split(' ')
+        for i in range(36500):
+            date = str(start + datetime.timedelta(i))
+            ddict = {key: value for (key, value) in
+                     map(lambda x, y: (x, y), ('year', 'month', 'day'),
+                     [int(item) for item in date.split('-')])
+                     }
+            entry = whead[calendar.weekday(**ddict)] + date
+            self.cursor.execute(f'INSERT INTO days (Day) VALUES (\'{entry}\')')
+        self.connection.commit()
 
     def insert_food(self, values: list):
         ftv = [str(value) for value in list(values)]
