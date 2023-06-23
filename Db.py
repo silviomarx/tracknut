@@ -14,34 +14,34 @@ class Db:
     def __init__(self):
         self.connection = sqlite3.connect('database/food_data.db')
         self.cursor = self.connection.cursor()
-        self.fid = 0
-        self.mid = 0
-        self.get_max_fid()
-        self.get_max_mid()
+        self.fid = self.get_max_fid()
+        self.mid = self.get_max_mid()
+
 
     def get_max_fid(self):
         try:
             self.cursor.execute('SELECT MAX(ID) FROM food')
             result = self.cursor.fetchone()[0]
             if result is not None:
-                self.fid = int(result) + 1
+                return int(result) + 1
 
             else:
-                self.fid = 0
+                return 0
+
         except sqlite3.OperationalError:
-            self.fid = 0
+            return = 0
 
     def get_max_mid(self):
         try:
             self.cursor.execute('SELECT MAX(ID) FROM meals')
             result = self.cursor.fetchone()[0]
             if result is not None:
-                self.mid = int(result) + 1
+                return = int(result) + 1
 
             else:
-                self.mid = 0
+                return = 0
         except sqlite3.OperationalError:
-            self.mid = 0
+            return = 0
 
     def initialize(self, file):
         initialize(file)
@@ -113,6 +113,7 @@ class Db:
             return self.cursor.fetchone()
 
     def get_fdata(self, getid):
+
         if getid == 'all':
             self.cursor.execute('SELECT * FROM fooddata')
             return self.cursor.fetchall()
@@ -120,5 +121,4 @@ class Db:
         else:
             self.cursor.execute(f'SELECT * FROM fooddata WHERE(ID = {getid})')
             return self.cursor.fetchone()
-
 
