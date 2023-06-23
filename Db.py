@@ -17,7 +17,6 @@ class Db:
         self.fid = self.get_max_fid()
         self.mid = self.get_max_mid()
 
-
     def get_max_fid(self):
         try:
             self.cursor.execute('SELECT MAX(ID) FROM food')
@@ -29,19 +28,19 @@ class Db:
                 return 0
 
         except sqlite3.OperationalError:
-            return = 0
+            return 0
 
     def get_max_mid(self):
         try:
             self.cursor.execute('SELECT MAX(ID) FROM meals')
             result = self.cursor.fetchone()[0]
             if result is not None:
-                return = int(result) + 1
+                return int(result) + 1
 
             else:
-                return = 0
+                return 0
         except sqlite3.OperationalError:
-            return = 0
+            return 0
 
     def initialize(self, file):
         initialize(file)
