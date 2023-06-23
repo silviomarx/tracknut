@@ -1,5 +1,7 @@
 from database.initialize import initialize
-import sqlite3, datetime, calendar
+import sqlite3
+import datetime
+import calendar
 
 
 class Db:
@@ -58,7 +60,7 @@ class Db:
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
 
-    def init_calendar(self):  # TODO
+    def init_calendar(self):
         try:
             self.cursor.execute('CREATE TABLE days (\'Day\',\'Entries\')')
         except sqlite3.OperationalError:
@@ -91,13 +93,32 @@ class Db:
         self.mid += 1
 
     def get_food(self, getid):
-        self.cursor.execute(f'SELECT * FROM food WHERE(ID = {getid})')
-        return self.cursor.fetchone()
+
+        if getid == 'all':
+            self.cursor.execute('SELECT * FROM food')
+            return self.cursor.fetchall()
+
+        else:
+            self.cursor.execute(f'SELECT * FROM food WHERE(ID = {getid})')
+            return self.cursor.fetchone()
 
     def get_meal(self, getid):
-        self.cursor.execute(f'SELECT * FROM meals WHERE(ID = {getid})')
-        return self.cursor.fetchone()
+
+        if getid == 'all':
+            self.cursor.execute('SELECT * FROM meals')
+            return self.cursor.fetchall()
+
+        else:
+            self.cursor.execute(f'SELECT * FROM meals WHERE(ID = {getid})')
+            return self.cursor.fetchone()
 
     def get_fdata(self, getid):
-        self.cursor.execute(f'SELECT * FROM fooddata WHERE(ID = {getid})')
-        return self.cursor.fetchone()
+        if getid == 'all':
+            self.cursor.execute('SELECT * FROM fooddata')
+            return self.cursor.fetchall()
+
+        else:
+            self.cursor.execute(f'SELECT * FROM fooddata WHERE(ID = {getid})')
+            return self.cursor.fetchone()
+
+
