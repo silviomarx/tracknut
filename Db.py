@@ -14,8 +14,8 @@ class Db:
     def __init__(self):
         self.connection = sqlite3.connect('database/food_data.db')
         self.cursor = self.connection.cursor()
-        self.fid = self.get_max_fid()
-        self.mid = self.get_max_mid()
+        self._fid = self.get_max_fid()
+        self._mid = self.get_max_mid()
 
     def get_max_fid(self):
         try:
@@ -82,14 +82,14 @@ class Db:
     def insert_food(self, values: list):
         ftv = [str(value) for value in list(values)]
         ftvstring = ', '.join(['\'' + value.replace('\'', '').replace('"', '') + '\'' for value in ftv])
-        self.cursor.execute(f'INSERT INTO food VALUES(\'{self.fid}\',{ftvstring})')
+        self.cursor.execute(f'INSERT INTO food VALUES(\'{self._fid}\',{ftvstring})')
         self.connection.commit()
-        self.fid += 1
+        self._fid += 1
 
     def insert_meal(self, name, ingredients: dict):
-        self.cursor.execute(f'INSERT INTO meals VALUES(\'{self.mid}\',\'{name}\',\'{ingredients}\')')
+        self.cursor.execute(f'INSERT INTO meals VALUES(\'{self._mid}\',\'{name}\',\'{ingredients}\')')
         self.connection.commit()
-        self.mid += 1
+        self._mid += 1
 
     def get_food(self, getid):
 
