@@ -101,24 +101,22 @@ class Db:
             self.cursor.execute('SELECT * FROM food')
             return self.cursor.fetchall()
 
-
         elif type(search) == int:
             self.cursor.execute(f'SELECT * FROM food WHERE(ID = {search})')
             return self.cursor.fetchone()
 
         elif type(search) == str:
-            if strict == False:
+            if not strict:
                 self.cursor.execute('SELECT * FROM food')
                 full = self.cursor.fetchall()
                 result = [item for item in full if search in item[1]]
                 return result
 
-            elif strict == True:
+            elif strict:
                 self.cursor.execute('SELECT * FROM food')
                 full = self.cursor.fetchall()
                 result = [item for item in full if search is item[1]]
                 return result
-
 
     def get_meal(self, search='all', strict=False):
 
@@ -126,20 +124,19 @@ class Db:
             self.cursor.execute('SELECT * FROM meals')
             return self.cursor.fetchall()
 
-
         elif type(search) == int:
             self.cursor.execute(f'SELECT * FROM meals WHERE(ID = {search})')
             return self.cursor.fetchone()
 
-
         elif type(search) == str:
-            if strict == False:
+
+            if not strict:
                 self.cursor.execute('SELECT * FROM meals')
                 full = self.cursor.fetchall()
                 result = [item for item in full if search in item[1]]
                 return result
 
-            elif strict == True:
+            elif strict:
                 self.cursor.execute('SELECT * FROM meals')
                 full = self.cursor.fetchall()
                 result = [item for item in full if search is item[1]]
@@ -156,15 +153,15 @@ class Db:
             return self.cursor.fetchone()
 
         elif type(search) == str:
-            if strict == False:
+
+            if not strict:
                 self.cursor.execute('SELECT * FROM fooddata')
                 full = self.cursor.fetchall()
                 result = [item for item in full if search in item[1]]
                 return result
-            elif strict == True:
+
+            elif strict:
                 self.cursor.execute('SELECT * FROM fooddata')
                 full = self.cursor.fetchall()
                 result = [item for item in full if search is item[1]]
                 return result
-
-
