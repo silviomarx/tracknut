@@ -2,6 +2,7 @@ from database.initialize import initialize
 import sqlite3
 import datetime
 import calendar
+from database.fields import Fields
 
 
 class Db:
@@ -16,6 +17,7 @@ class Db:
         self.cursor = self.connection.cursor()
         self._fid = self.get_max_fid()
         self._mid = self.get_max_mid()
+        self.fields = Fields()
 
     def get_max_fid(self):
         try:
@@ -121,3 +123,6 @@ class Db:
             self.cursor.execute(f'SELECT * FROM fooddata WHERE(ID = {getid})')
             return self.cursor.fetchone()
 
+
+dat = Db()
+print([item for item in dat.fields])

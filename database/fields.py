@@ -24,6 +24,9 @@ class Fields:
         with open('fields', 'rt') as file:
             self.fields = list(file.read().split(', \n'))
 
+            self._itercurr = 0
+            self._iterend = len(self.fields)
+
     def add_item(self, item):
 
         if item not in self.fields:
@@ -42,3 +45,16 @@ class Fields:
 
     def __str__(self):
         return str(self.fields)
+
+    def __iter__(self):
+        while self._itercurr < self._iterend:
+            yield self.fields[self._itercurr]
+            self._itercurr += 1
+
+    def __next__(self):
+        if self._itercurr > self._iterend:
+            self._itercurr = 0
+            raise StopIteration
+
+        else:
+            self._itercurr += 1
