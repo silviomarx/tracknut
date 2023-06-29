@@ -124,5 +124,4 @@ class Db:
             return self.cursor.fetchone()
 
 
-dat = Db()
-print([item for item in dat.fields])
+

@@ -27,7 +27,12 @@ class Fields:
             self._itercurr = 0
             self._iterend = len(self.fields)
 
-    def add_item(self, item):
+    def add_item(self, item: str) -> None :
+        '''
+        Adds an item to the list of fields for the user-defined food catalog.
+        :param item: Item to be added
+        :return: None
+        '''
 
         if item not in self.fields:
             try:
