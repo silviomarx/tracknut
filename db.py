@@ -1,3 +1,5 @@
+
+
 from database.initialize import initialize
 import sqlite3
 import datetime
@@ -93,35 +95,76 @@ class Db:
         self.connection.commit()
         self._mid += 1
 
-    def get_food(self, getid):
+    def get_food(self, search='all', strict=False):
 
-        if getid == 'all':
+        if search == 'all':
             self.cursor.execute('SELECT * FROM food')
             return self.cursor.fetchall()
 
-        else:
-            self.cursor.execute(f'SELECT * FROM food WHERE(ID = {getid})')
+
+        elif type(search) == int:
+            self.cursor.execute(f'SELECT * FROM food WHERE(ID = {search})')
             return self.cursor.fetchone()
 
-    def get_meal(self, getid):
+        elif type(search) == str:
+            if strict == False:
+                self.cursor.execute('SELECT * FROM food')
+                full = self.cursor.fetchall()
+                result = [item for item in full if search in item[1]]
+                return result
 
-        if getid == 'all':
+            elif strict == True:
+                self.cursor.execute('SELECT * FROM food')
+                full = self.cursor.fetchall()
+                result = [item for item in full if search is item[1]]
+                return result
+
+
+    def get_meal(self, search='all', strict=False):
+
+        if search == 'all':
             self.cursor.execute('SELECT * FROM meals')
             return self.cursor.fetchall()
 
-        else:
-            self.cursor.execute(f'SELECT * FROM meals WHERE(ID = {getid})')
+
+        elif type(search) == int:
+            self.cursor.execute(f'SELECT * FROM meals WHERE(ID = {search})')
             return self.cursor.fetchone()
 
-    def get_fdata(self, getid):
 
-        if getid == 'all':
+        elif type(search) == str:
+            if strict == False:
+                self.cursor.execute('SELECT * FROM meals')
+                full = self.cursor.fetchall()
+                result = [item for item in full if search in item[1]]
+                return result
+
+            elif strict == True:
+                self.cursor.execute('SELECT * FROM meals')
+                full = self.cursor.fetchall()
+                result = [item for item in full if search is item[1]]
+                return result
+
+    def get_fdata(self, search='all', strict=False):
+
+        if search == 'all':
             self.cursor.execute('SELECT * FROM fooddata')
             return self.cursor.fetchall()
 
-        else:
-            self.cursor.execute(f'SELECT * FROM fooddata WHERE(ID = {getid})')
+        elif type(search) == int:
+            self.cursor.execute(f'SELECT * FROM fooddata WHERE(ID = {search})')
             return self.cursor.fetchone()
 
+        elif type(search) == str:
+            if strict == False:
+                self.cursor.execute('SELECT * FROM fooddata')
+                full = self.cursor.fetchall()
+                result = [item for item in full if search in item[1]]
+                return result
+            elif strict == True:
+                self.cursor.execute('SELECT * FROM fooddata')
+                full = self.cursor.fetchall()
+                result = [item for item in full if search is item[1]]
+                return result
 
 
