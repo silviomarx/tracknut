@@ -1,5 +1,3 @@
-
-
 from database.initialize import initialize
 import sqlite3
 import datetime
@@ -9,10 +7,10 @@ from database.fields import Fields
 
 class Db:
 
-    '''
+    """
     Base database class for tracknut
     that will perform all the database operations.
-    '''
+    """
 
     def __init__(self):
         self.connection = sqlite3.connect('database/food_data.db')
@@ -115,7 +113,7 @@ class Db:
             elif strict:
                 self.cursor.execute('SELECT * FROM food')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search is item[1]]
+                result = [item for item in full if search == item[1]]
                 return result
 
     def get_meal(self, search='all', strict=False):
@@ -139,7 +137,7 @@ class Db:
             elif strict:
                 self.cursor.execute('SELECT * FROM meals')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search is item[1]]
+                result = [item for item in full if search == item[1]]
                 return result
 
     def get_fdata(self, search='all', strict=False):
@@ -163,5 +161,5 @@ class Db:
             elif strict:
                 self.cursor.execute('SELECT * FROM fooddata')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search is item[1]]
+                result = [item for item in full if search == item[1]]
                 return result
