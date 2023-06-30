@@ -19,8 +19,8 @@ class Db:
         self._mid = self.get_max_mid()
         self.fields = Fields()
         self.fentry = {k: v for (k, v) in map(lambda x: (x, 0), self.fields)}
-        self.mentry = {{k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}}
-        self.dentry = {{k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}}
+        self.mentry = {k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}
+        self.dentry = {k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}
 
     def get_max_fid(self):
         try:
@@ -173,4 +173,3 @@ class Db:
     def update_mentry(self, values):
         update = [value for value in values if value[0] in self.mentry.keys() and len(value) == 2]
         self.mentry = self.mentry.update(update)
-
