@@ -18,7 +18,7 @@ class Db:
         self._fid = self.get_max_fid()
         self._mid = self.get_max_mid()
         self.fields = Fields()
-        self.entry = {k:v for (k,v) in map(lambda x: (x,0), self.fields)}
+        self.fentry = {k: v for (k, v) in map(lambda x: (x, 0), self.fields)}
 
     def get_max_fid(self):
         try:
@@ -51,20 +51,19 @@ class Db:
     def init_food(self, headers: list):
         try:
             fth = [header.replace('.', '').replace(' ', '').replace('-', '') for header in list(headers)]
-            fthstring = ', '.join(['\'' + header.replace('\'', '').replace('"', '') + '\'' for header in fth])
-            self.cursor.execute(f'CREATE TABLE food (\'ID\', {fthstring})')
+            self.cursor.execute(f'CREATE TABLE food (ID INTEGER PRIMARY KEY, {fth})')
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_meals(self):
         try:
-            self.cursor.execute('CREATE TABLE meals (\'ID\',\'name\',\'ingredients\')')
+            self.cursor.execute('CREATE TABLE meals (ID INTEGER PRIMARY KEY,name,ingredients)')
         except sqlite3.OperationalError:
-             raise sqlite3.OperationalError('Initialization already completed')
+            raise sqlite3.OperationalError('Initialization already completed')
 
     def init_calendar(self):
         try:
-            self.cursor.execute('CREATE TABLE days (\'Day\',\'Entries\')')
+            self.cursor.execute('CREATE TABLE days (Day,Entries)')
         except sqlite3.OperationalError:
             self.cursor.execute('SELECT * FROM days ')
             if self.cursor.fetchall()[0]:
@@ -165,6 +164,6 @@ class Db:
                 result = [item for item in full if search == item[1]]
                 return result
 
-    def update_entry(self, values):
-        update = [value for value in values if value[0] in self.entry.keys() and len(value) == 2]
-        self.entry = self.entry(update)
+    def update_fentry(self, values):
+        update = [value for value in values if value[0] in self.fentry.keys() and len(value) == 2]
+        self.fentry = self.fentry.update(update)
