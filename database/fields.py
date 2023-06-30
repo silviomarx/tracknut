@@ -7,7 +7,7 @@ class Fields:
             open('database/fields', 'xt').close()
             # Insert standard fields
             with open('database/fields', 'wt') as file:
-                stdfields = [item + ', \n' for item in ['Category','Name',
+                stdfields = [item + ', \n' for item in ['Category','Name','Nutrient Databank Number',
                                                         'Alpha Carotene', 'Beta Carotene', 'Beta Cryptoxanthin',
                                                         'Carbohydrate', 'Cholesterol', 'Choline', 'Fiber',
                                                         'Lutein and Zeaxanthin', 'Lycopene', 'Niacin', 'Protein',

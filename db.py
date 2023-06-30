@@ -17,7 +17,7 @@ class Db:
         self.cursor = self.connection.cursor()
         self._fid = self.get_max_fid()
         self._mid = self.get_max_mid()
-        self.fields = Fields()
+        self.fields = list(Fields())
         self.fentry = {k: v for (k, v) in map(lambda x: (x, 0), self.fields)}
         self.mentry = {k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}
         self.dentry = {k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}
@@ -99,11 +99,14 @@ class Db:
 
         if search == 'all':
             self.cursor.execute('SELECT * FROM food')
-            return self.cursor.fetchall()
+            result = self.cursor.fetchall()
+
 
         elif type(search) == int:
             self.cursor.execute(f'SELECT * FROM food WHERE(ID = {search})')
-            return self.cursor.fetchone()
+            result = self.cursor.fetchone()
+            result = {k: v for (k, v) in map(lambda x,y: (x, y), self.fields, result)}
+            return result
 
         elif type(search) == str:
             if not strict:
@@ -150,14 +153,16 @@ class Db:
 
         elif type(search) == int:
             self.cursor.execute(f'SELECT * FROM fooddata WHERE(ID = {search})')
-            return self.cursor.fetchone()
+            result = self.cursor.fetchone()
+            result = {k: v for (k, v) in map(lambda x, y: (x, y), ['ID'] + self.fields, result)}
+            return result
 
         elif type(search) == str:
 
             if not strict:
                 self.cursor.execute('SELECT * FROM fooddata')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search in item[2]]
+                result = [{k: v for (k, v) in map(lambda x, y: (x, y), ['ID'] + self.fields, item)} for item in full]
                 return result
 
             elif strict:
