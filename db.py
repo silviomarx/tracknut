@@ -18,9 +18,9 @@ class Db:
         self._fid = self.get_max_fid()
         self._mid = self.get_max_mid()
         self.fields = list(Fields())
-        self.fentry = {k: v for (k, v) in map(lambda x: (x, 0), self.fields)}
-        self.mentry = {k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}
-        self.dentry = {k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}
+        self.fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
+        self.mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
+        self.dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'entry'])}
 
     def get_max_fid(self):
         try:
@@ -50,10 +50,12 @@ class Db:
     def initialize(self, file):
         initialize(file)
 
-    def init_food(self, headers: list):
+    def init_food(self):
         try:
-            fth = [header.replace('.', '').replace(' ', '').replace('-', '') for header in list(headers)]
-            self.cursor.execute(f'CREATE TABLE food (ID INTEGER PRIMARY KEY, {fth})')
+            fth =  ','.join([ '\'' + item + '\'' for item in self.fields]).replace(' ','')
+            sql ="CREATE TABLE food ('ID' INTEGER PRIMARY KEY," + fth +")"
+            print(sql)
+            self.cursor.execute(sql)
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
 
@@ -83,9 +85,13 @@ class Db:
             self.cursor.execute(f'INSERT INTO days (Day) VALUES (\'{entry}\')')
         self.connection.commit()
 
-    def insert_food(self, values: list):
-        ftv = [str(value) for value in list(values)]
-        ftvstring = ', '.join(['\'' + value.replace('\'', '').replace('"', '') + '\'' for value in ftv])
+    def insert_food(self, entry=None):
+
+        if not entry:
+            entry = self.fentry
+
+        ftv = entry.values()
+        ftvstring = ', '.join(['\'' + str(item) + '\'' for item in ftv])
         self.cursor.execute(f'INSERT INTO food VALUES(\'{self._fid}\',{ftvstring})')
         self.connection.commit()
         self._fid += 1
@@ -100,6 +106,7 @@ class Db:
         if search == 'all':
             self.cursor.execute('SELECT * FROM food')
             result = self.cursor.fetchall()
+            return result
 
 
         elif type(search) == int:
@@ -172,9 +179,9 @@ class Db:
                 return result
 
     def update_fentry(self, values):
-        update = [value for value in values if value[0] in self.fentry.keys() and len(value) == 2]
-        self.fentry = self.fentry.update(update)
+        upd = [value for value in values if value[0] in self.fentry.keys() and len(value) == 2]
+        self.fentry.update(upd)
 
     def update_mentry(self, values):
         update = [value for value in values if value[0] in self.mentry.keys() and len(value) == 2]
-        self.mentry = self.mentry.update(update)
+        self.mentry.update(update)

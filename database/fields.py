@@ -15,7 +15,7 @@ class Fields:
                                                         'Water', 'Monosaturated Fat', 'Polysaturated Fat',
                                                         'Saturated Fat', 'Total Lipid', 'Calcium', 'Copper', 'Iron',
                                                         'Magnesium', 'Phosphorus', 'Potassium', 'Sodium', 'Zinc',
-                                                        'Vitamin A - RAE', 'Vitamin B12', 'Vitamin B6',
+                                                        'Vitamin A', 'Vitamin B12', 'Vitamin B6',
                                                         'Vitamin C', 'Vitamin E', 'Vitamin K']]
                 file.writelines(stdfields)
 
