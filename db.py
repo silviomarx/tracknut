@@ -19,6 +19,8 @@ class Db:
         self._mid = self.get_max_mid()
         self.fields = Fields()
         self.fentry = {k: v for (k, v) in map(lambda x: (x, 0), self.fields)}
+        self.mentry = {{k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}}
+        self.dentry = {{k: v for (k, v) in map(lambda x: (x, 0), ['name', 'ingredients', 'serving size'])}}
 
     def get_max_fid(self):
         try:
@@ -57,7 +59,7 @@ class Db:
 
     def init_meals(self):
         try:
-            self.cursor.execute('CREATE TABLE meals (ID INTEGER PRIMARY KEY,name,ingredients)')
+            self.cursor.execute('CREATE TABLE meals (ID INTEGER PRIMARY KEY, name, ingredients, serving size)')
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
 
@@ -107,13 +109,13 @@ class Db:
             if not strict:
                 self.cursor.execute('SELECT * FROM food')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search in item[1]]
+                result = [item for item in full if search in item[2]]
                 return result
 
             elif strict:
                 self.cursor.execute('SELECT * FROM food')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search == item[1]]
+                result = [item for item in full if search == item[2]]
                 return result
 
     def get_meal(self, search='all', strict=False):
@@ -131,13 +133,13 @@ class Db:
             if not strict:
                 self.cursor.execute('SELECT * FROM meals')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search in item[1]]
+                result = [item for item in full if search in item[2]]
                 return result
 
             elif strict:
                 self.cursor.execute('SELECT * FROM meals')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search == item[1]]
+                result = [item for item in full if search == item[2]]
                 return result
 
     def get_fdata(self, search='all', strict=False):
@@ -155,15 +157,20 @@ class Db:
             if not strict:
                 self.cursor.execute('SELECT * FROM fooddata')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search in item[1]]
+                result = [item for item in full if search in item[2]]
                 return result
 
             elif strict:
                 self.cursor.execute('SELECT * FROM fooddata')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search == item[1]]
+                result = [item for item in full if search == item[2]]
                 return result
 
     def update_fentry(self, values):
         update = [value for value in values if value[0] in self.fentry.keys() and len(value) == 2]
         self.fentry = self.fentry.update(update)
+
+    def update_mentry(self, values):
+        update = [value for value in values if value[0] in self.mentry.keys() and len(value) == 2]
+        self.mentry = self.mentry.update(update)
+
