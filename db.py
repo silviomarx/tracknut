@@ -18,6 +18,7 @@ class Db:
         self._fid = self.get_max_fid()
         self._mid = self.get_max_mid()
         self.fields = Fields()
+        self.entry = {k:v for (k,v) in map(lambda x: (x,0), self.fields)}
 
     def get_max_fid(self):
         try:
@@ -163,3 +164,7 @@ class Db:
                 full = self.cursor.fetchall()
                 result = [item for item in full if search == item[1]]
                 return result
+
+    def update_entry(self, values):
+        update = [value for value in values if value[0] in self.entry.keys() and len(value) == 2]
+        self.entry = self.entry(update)

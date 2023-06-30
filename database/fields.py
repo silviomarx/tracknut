@@ -4,7 +4,7 @@ class Fields:
 
         # Initialization of fields file
         try:
-            open('fields', 'xt').close()
+            open('database/fields', 'xt').close()
             # Insert standard fields
             with open('fields', 'wt') as file:
                 stdfields = [item + ', \n' for item in ['Alpha Carotene', 'Beta Carotene', 'Beta Cryptoxanthin',
@@ -21,7 +21,7 @@ class Fields:
         except FileExistsError:
             pass
 
-        with open('fields', 'rt') as file:
+        with open('database/fields', 'rt') as file:
             self.fields = list(file.read().split(', \n'))
 
             self._itercurr = 0
@@ -36,10 +36,10 @@ class Fields:
 
         if item not in self.fields:
             try:
-                with open('fields', 'at') as file:
+                with open('database/fields', 'at') as file:
                     file.write(f'{item}, \n')
 
-                with open('fields', 'rt') as file:
+                with open('database/fields', 'rt') as file:
                     self.fields = list(file.read().split(', \n'))
 
             except:  # TODO
