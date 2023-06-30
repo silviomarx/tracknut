@@ -22,7 +22,7 @@ def initialize(file):
 
     # Create preset food data table, if not created
     try:
-        cursor.execute(f'CREATE TABLE fooddata(ID,{header})')
+        cursor.execute(f'CREATE TABLE fooddata(ID INTEGER PRIMARY KEY,{header})')
     except sqlite3.OperationalError:
         pass
 

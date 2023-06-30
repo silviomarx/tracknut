@@ -57,9 +57,9 @@ class Db:
 
     def init_meals(self):
         try:
-            self.cursor.execute('CREATE TABLE meals (\'ID\',\'name\',\'ingredients\'')
+            self.cursor.execute('CREATE TABLE meals (\'ID\',\'name\',\'ingredients\')')
         except sqlite3.OperationalError:
-            raise sqlite3.OperationalError('Initialization already completed')
+             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_calendar(self):
         try:
