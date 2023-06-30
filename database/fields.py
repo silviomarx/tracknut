@@ -6,8 +6,9 @@ class Fields:
         try:
             open('database/fields', 'xt').close()
             # Insert standard fields
-            with open('fields', 'wt') as file:
-                stdfields = [item + ', \n' for item in ['Alpha Carotene', 'Beta Carotene', 'Beta Cryptoxanthin',
+            with open('database/fields', 'wt') as file:
+                stdfields = [item + ', \n' for item in ['Category','Name',
+                                                        'Alpha Carotene', 'Beta Carotene', 'Beta Cryptoxanthin',
                                                         'Carbohydrate', 'Cholesterol', 'Choline', 'Fiber',
                                                         'Lutein and Zeaxanthin', 'Lycopene', 'Niacin', 'Protein',
                                                         'Retinol', 'Riboflavin', 'Selenium', 'Sugar Total', 'Thiamin',
