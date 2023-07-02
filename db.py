@@ -29,6 +29,7 @@ class Db:
         self._days = [day[0] for day in self._days]
 
     def get_max_fid(self):
+
         try:
             self.cursor.execute('SELECT MAX(ID) FROM food')
             result = self.cursor.fetchone()[0]
@@ -42,6 +43,7 @@ class Db:
             return 0
 
     def get_max_mid(self):
+
         try:
             self.cursor.execute('SELECT MAX(ID) FROM meals')
             result = self.cursor.fetchone()[0]
@@ -53,10 +55,29 @@ class Db:
         except sqlite3.OperationalError:
             return 0
 
-    def initialize(self, file):
+    def load_food_data(self, file):
+
         initialize(file)
 
+    def setup_tables(self):
+
+        try:
+            self.init_food()
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            self.init_meals()
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            self.init_calendar()
+        except sqlite3.OperationalError:
+            pass
+
     def init_food(self):
+
         try:
             fth = ','.join(['\'' + item + '\'' for item in self.fields]).replace(' ', '')
             sql = "CREATE TABLE food ('ID' INTEGER PRIMARY KEY," + fth + ")"
@@ -66,14 +87,16 @@ class Db:
             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_meals(self):
+
         try:
             self.cursor.execute('CREATE TABLE meals (ID INTEGER PRIMARY KEY, name, ingredients, serving size)')
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_calendar(self):
+
         try:
-            self.cursor.execute('CREATE TABLE days (Day,Entries)')
+            self.cursor.execute('CREATE TABLE days (Day,Meals,Foods)')
         except sqlite3.OperationalError:
             self.cursor.execute('SELECT * FROM days ')
             if self.cursor.fetchall()[0]:
@@ -104,13 +127,29 @@ class Db:
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
 
     def insert_meal(self, name, ingredients: dict):
+
         self.cursor.execute(f'INSERT INTO meals VALUES(\'{self._mid}\',\'{name}\',\'{ingredients}\')')
         self.connection.commit()
         self._mid += 1
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
 
-    def go_to_day(self,day):
-        self._dentry
+    def go_to_day(self, day: str):
+
+        if day in self._days:
+            self.cursor.execute(f'SELECT * FROM days')
+            idx = self._days.index(day)
+            print(idx)
+            table = self.cursor.fetchall()
+            print(table[idx])
+            if len(table[idx]) == 3:
+                update = map(lambda x, y: (x, y), ['day', 'meals', 'foods'], table[idx])
+                self.update_dentry(update)
+
+
+
+
+        else:
+            raise ValueError('Day does not exist. Format of day should resemble: Sat2023-07-22')
 
     def get_food(self, search='all', strict=False):
 
@@ -195,3 +234,7 @@ class Db:
     def update_mentry(self, values):
         update = [value for value in values if value[0] in self._mentry.keys() and len(value) == 2]
         self._mentry.update(update)
+
+    def update_dentry(self,values):
+        update = [value for value in values if value[0] in self._mentry.keys() and len(value) == 2]
+        self._dentry.update(update)
