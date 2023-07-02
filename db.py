@@ -15,11 +15,11 @@ class Db:
     def __init__(self):
         self.connection = sqlite3.connect('database/food_data.db')
         self.cursor = self.connection.cursor()
+        self.fields = list(Fields())
+        self.setup_tables()
 
         self._fid = self.get_max_fid()
         self._mid = self.get_max_mid()
-
-        self.fields = list(Fields())
 
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
@@ -81,21 +81,20 @@ class Db:
         try:
             fth = ','.join(['\'' + item + '\'' for item in self.fields]).replace(' ', '')
             sql = "CREATE TABLE food ('ID' INTEGER PRIMARY KEY," + fth + ")"
-            print(sql)
             self.cursor.execute(sql)
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_meals(self):
 
-        try:
+        try:  # TODO change SQL declaration
             self.cursor.execute('CREATE TABLE meals (ID INTEGER PRIMARY KEY, name, ingredients, serving size)')
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_calendar(self):
 
-        try:
+        try:  # TODO change SQL declaration
             self.cursor.execute('CREATE TABLE days (Day,Meals,Foods)')
         except sqlite3.OperationalError:
             self.cursor.execute('SELECT * FROM days ')
@@ -138,15 +137,9 @@ class Db:
         if day in self._days:
             self.cursor.execute(f'SELECT * FROM days')
             idx = self._days.index(day)
-            print(idx)
             table = self.cursor.fetchall()
-            print(table[idx])
-            if len(table[idx]) == 3:
-                update = map(lambda x, y: (x, y), ['day', 'meals', 'foods'], table[idx])
-                self.update_dentry(update)
-
-
-
+            update = [item for item in map(lambda x, y: (x, y), ['day', 'meals', 'foods'], table[idx])]
+            self.update_dentry(update)
 
         else:
             raise ValueError('Day does not exist. Format of day should resemble: Sat2023-07-22')
@@ -235,6 +228,7 @@ class Db:
         update = [value for value in values if value[0] in self._mentry.keys() and len(value) == 2]
         self._mentry.update(update)
 
-    def update_dentry(self,values):
-        update = [value for value in values if value[0] in self._mentry.keys() and len(value) == 2]
+    def update_dentry(self, values):
+        update = [value for value in values if value[0] in self._dentry.keys() and len(value) == 2]
         self._dentry.update(update)
+
