@@ -1,8 +1,8 @@
-from database.initialize import initialize
 import sqlite3
 import datetime
 import calendar
 from database.fields import Fields
+from database.initialize import initialize
 
 
 class Db:
@@ -15,12 +15,18 @@ class Db:
     def __init__(self):
         self.connection = sqlite3.connect('database/food_data.db')
         self.cursor = self.connection.cursor()
+
         self._fid = self.get_max_fid()
         self._mid = self.get_max_mid()
+
         self.fields = list(Fields())
-        self.fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
-        self.mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
-        self.dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'entry'])}
+
+        self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
+        self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
+        self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'meals', 'foods'])}
+
+        self._days = self.cursor.execute("SELECT Day from days").fetchall()
+        self._days = [day[0] for day in self._days]
 
     def get_max_fid(self):
         try:
@@ -52,8 +58,8 @@ class Db:
 
     def init_food(self):
         try:
-            fth =  ','.join([ '\'' + item + '\'' for item in self.fields]).replace(' ','')
-            sql ="CREATE TABLE food ('ID' INTEGER PRIMARY KEY," + fth +")"
+            fth = ','.join(['\'' + item + '\'' for item in self.fields]).replace(' ', '')
+            sql = "CREATE TABLE food ('ID' INTEGER PRIMARY KEY," + fth + ")"
             print(sql)
             self.cursor.execute(sql)
         except sqlite3.OperationalError:
@@ -88,18 +94,23 @@ class Db:
     def insert_food(self, entry=None):
 
         if not entry:
-            entry = self.fentry
+            entry = self._fentry
 
         ftv = entry.values()
         ftvstring = ', '.join(['\'' + str(item) + '\'' for item in ftv])
         self.cursor.execute(f'INSERT INTO food VALUES(\'{self._fid}\',{ftvstring})')
         self.connection.commit()
         self._fid += 1
+        self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
 
     def insert_meal(self, name, ingredients: dict):
         self.cursor.execute(f'INSERT INTO meals VALUES(\'{self._mid}\',\'{name}\',\'{ingredients}\')')
         self.connection.commit()
         self._mid += 1
+        self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
+
+    def go_to_day(self,day):
+        self._dentry
 
     def get_food(self, search='all', strict=False):
 
@@ -108,11 +119,10 @@ class Db:
             result = self.cursor.fetchall()
             return result
 
-
         elif type(search) == int:
             self.cursor.execute(f'SELECT * FROM food WHERE(ID = {search})')
             result = self.cursor.fetchone()
-            result = {k: v for (k, v) in map(lambda x,y: (x, y), self.fields, result)}
+            result = {k: v for (k, v) in map(lambda x, y: (x, y), self.fields, result)}
             return result
 
         elif type(search) == str:
@@ -179,9 +189,9 @@ class Db:
                 return result
 
     def update_fentry(self, values):
-        upd = [value for value in values if value[0] in self.fentry.keys() and len(value) == 2]
-        self.fentry.update(upd)
+        update = [value for value in values if value[0] in self._fentry.keys() and len(value) == 2]
+        self._fentry.update(update)
 
     def update_mentry(self, values):
-        update = [value for value in values if value[0] in self.mentry.keys() and len(value) == 2]
-        self.mentry.update(update)
+        update = [value for value in values if value[0] in self._mentry.keys() and len(value) == 2]
+        self._mentry.update(update)
