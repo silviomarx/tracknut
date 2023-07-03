@@ -17,6 +17,7 @@ class Db:
         self.cursor = self.connection.cursor()
         self.fields = list(Fields())
         self.setup_tables()
+        self._days = self.init_calendar()
 
         self._fid = self.get_max_fid()
         self._mid = self.get_max_mid()
@@ -24,9 +25,6 @@ class Db:
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
         self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'meals', 'foods'])}
-
-        self._days = self.cursor.execute("SELECT Day from days").fetchall()
-        self._days = [day[0] for day in self._days]
 
     def get_max_fid(self):
 
@@ -71,11 +69,6 @@ class Db:
         except sqlite3.OperationalError:
             pass
 
-        try:
-            self.init_calendar()
-        except sqlite3.OperationalError:
-            pass
-
     def init_food(self):
 
         try:
@@ -94,13 +87,7 @@ class Db:
 
     def init_calendar(self):
 
-        try:  # TODO change SQL declaration
-            self.cursor.execute('CREATE TABLE days (Day,Meals,Foods)')
-        except sqlite3.OperationalError:
-            self.cursor.execute('SELECT * FROM days ')
-            if self.cursor.fetchall()[0]:
-                raise sqlite3.OperationalError('Initialization already completed')
-
+        dlist = []
         start = datetime.date(2000, 1, 1)
         whead = calendar.weekheader(3).split(' ')
         for i in range(36500):
@@ -109,9 +96,10 @@ class Db:
                      map(lambda x, y: (x, y), ('year', 'month', 'day'),
                      [int(item) for item in date.split('-')])
                      }
-            entry = whead[calendar.weekday(**ddict)] + date
-            self.cursor.execute(f'INSERT INTO days (Day) VALUES (\'{entry}\')')
-        self.connection.commit()
+            entry = whead[calendar.weekday(**ddict)] + ' ' + date
+            dlist.append(entry)
+
+        return dlist
 
     def insert_food(self, entry=None):
 
@@ -135,14 +123,10 @@ class Db:
     def go_to_day(self, day: str):
 
         if day in self._days:
-            self.cursor.execute(f'SELECT * FROM days')
-            idx = self._days.index(day)
-            table = self.cursor.fetchall()
-            update = [item for item in map(lambda x, y: (x, y), ['day', 'meals', 'foods'], table[idx])]
-            self.update_dentry(update)
+            self._dentry['day'] = day
 
         else:
-            raise ValueError('Day does not exist. Format of day should resemble: Sat2023-07-22')
+            raise ValueError('Day does not exist. Format of day should resemble: Sat 2023-07-22')
 
     def get_food(self, search='all', strict=False):
 
@@ -231,4 +215,5 @@ class Db:
     def update_dentry(self, values):
         update = [value for value in values if value[0] in self._dentry.keys() and len(value) == 2]
         self._dentry.update(update)
+
 
