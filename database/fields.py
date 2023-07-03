@@ -7,16 +7,10 @@ class Fields:
             open('database/fields', 'xt').close()
             # Insert standard fields
             with open('database/fields', 'wt') as file:
-                stdfields = [item + ', \n' for item in ['Category','Name','Nutrient Databank Number',
-                                                        'Alpha Carotene', 'Beta Carotene', 'Beta Cryptoxanthin',
-                                                        'Carbohydrate', 'Cholesterol', 'Choline', 'Fiber',
-                                                        'Lutein and Zeaxanthin', 'Lycopene', 'Niacin', 'Protein',
-                                                        'Retinol', 'Riboflavin', 'Selenium', 'Sugar Total', 'Thiamin',
-                                                        'Water', 'Monosaturated Fat', 'Polysaturated Fat',
-                                                        'Saturated Fat', 'Total Lipid', 'Calcium', 'Copper', 'Iron',
-                                                        'Magnesium', 'Phosphorus', 'Potassium', 'Sodium', 'Zinc',
-                                                        'Vitamin A', 'Vitamin B12', 'Vitamin B6',
-                                                        'Vitamin C', 'Vitamin E', 'Vitamin K']]
+                stdfields = [item + ', \n' for item in ['Name','Category','Calories',
+                                                        'Carbohydrates', 'Total Sugar',
+                                                        'Total Fat', 'Saturated Fats',
+                                                        'Fiber', 'Protein', 'Salt']]
                 file.writelines(stdfields)
 
         except FileExistsError:
