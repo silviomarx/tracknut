@@ -72,8 +72,12 @@ class Db:
     def init_food(self):
 
         try:
-            fth = ','.join(['\'' + item + '\'' for item in self.fields]).replace(' ', '')
-            sql = "CREATE TABLE food ('ID' INTEGER PRIMARY KEY," + fth + ")"
+            sql = """CREATE TABLE food ('ID' INTEGER PRIMARY KEY,
+                  'Name' TEXT, 'Category' TEXT, 'Calories' REAL, 
+                  'Carbohydrates' REAL, 'Total Sugar' REAL,
+                  'Total Fat' REAL, 'Saturated Fats' REAL,
+                  'Fiber' REAL,  'Protein' REAL, 'Salt' REAL)
+                  """.replace('\n','')
             self.cursor.execute(sql)
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
@@ -105,8 +109,11 @@ class Db:
 
         if not entry:
             entry = self._fentry
+            ftv = entry.values()
 
-        ftv = entry.values()
+        else:
+            ftv = entry
+
         ftvstring = ', '.join(['\'' + str(item) + '\'' for item in ftv])
         self.cursor.execute(f'INSERT INTO food VALUES(\'{self._fid}\',{ftvstring})')
         self.connection.commit()
