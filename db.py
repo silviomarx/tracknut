@@ -15,7 +15,7 @@ class Db:
     def __init__(self):
         self.connection = sqlite3.connect('database/food_data.db')
         self.cursor = self.connection.cursor()
-        self.fields = list(Fields())
+        self.fields = [item for item in list(Fields()) if item != '']
         self.setup_tables()
         self._days = self.init_calendar()
 
@@ -80,7 +80,7 @@ class Db:
 
     def init_meals(self):
 
-        try:  # TODO change SQL declaration
+        try:
             self.cursor.execute('CREATE TABLE meals (ID INTEGER PRIMARY KEY, name, ingredients, serving size)')
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
@@ -113,9 +113,9 @@ class Db:
         self._fid += 1
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
 
-    def insert_meal(self, name, ingredients: dict):
+    def insert_meal(self, name, ingredients: dict, serving):
 
-        self.cursor.execute(f'INSERT INTO meals VALUES(\'{self._mid}\',\'{name}\',\'{ingredients}\')')
+        self.cursor.execute(f'INSERT INTO meals VALUES(\'{self._mid}\',\'{name}\',\'{str(ingredients)}\', \'{serving}\')')
         self.connection.commit()
         self._mid += 1
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
