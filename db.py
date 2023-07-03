@@ -41,7 +41,6 @@ class Db:
         except sqlite3.OperationalError:
             return 0
 
-
     def load_food_data(self, file):
 
         initialize(file)
@@ -89,6 +88,7 @@ class Db:
             self.cursor.execute('CREATE TABLE days (ID INTEGER PRIMARY KEY, day, entry, serving size)')
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
+
     def init_calendar(self):
 
         dlist = []
@@ -108,13 +108,9 @@ class Db:
     def insert_food(self, entry=None):
 
         if not entry:
-            entry = self._fentry
-            ftv = entry.values()
+            entry = self._fentry.values()
 
-        else:
-            ftv = entry
-
-        ftvstring = ','.join(['\'' + str(item) + '\'' for item in ftv])
+        ftvstring = ','.join(['\'' + str(item) + '\'' for item in entry])
         self.cursor.execute(f'INSERT INTO food VALUES({self._fid}, {ftvstring})')
         self.connection.commit()
         self._fid += 1
@@ -127,6 +123,16 @@ class Db:
         self.connection.commit()
         self._mid += 1
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
+
+    def insert_in_day(self, entry=None):
+
+        if not entry:
+            entry = self._dentry.values()
+
+        dtvstring = ','.join(['\'' + str(item) + '\'' for item in entry])
+        self.cursor.execute(f'INSERT INTO days ({self._did},{dtvstring}')
+        self._did += 1
+        self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'entry', 'serving size'])}
 
     def go_to_day(self, day: str):
 
@@ -236,5 +242,3 @@ class Db:
     def update_dentry(self, values):
         update = [value for value in values if value[0] in self._dentry.keys() and len(value) == 2]
         self._dentry.update(update)
-
-
