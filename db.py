@@ -19,17 +19,18 @@ class Db:
         self.setup_tables()
         self._days = self.init_calendar()
 
-        self._fid = self.get_max_fid()
-        self._mid = self.get_max_mid()
+        self._fid = self.get_max_id('food')
+        self._mid = self.get_max_id('meals')
+        self._did = self.get_max_id('days')
 
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
-        self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'meals', 'foods'])}
+        self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'entry', 'serving size'])}
 
-    def get_max_fid(self):
+    def get_max_id(self, table: str):
 
         try:
-            self.cursor.execute('SELECT MAX(ID) FROM food')
+            self.cursor.execute(f'SELECT MAX(ID) FROM {table}')
             result = self.cursor.fetchone()[0]
             if result is not None:
                 return int(result) + 1
@@ -40,18 +41,6 @@ class Db:
         except sqlite3.OperationalError:
             return 0
 
-    def get_max_mid(self):
-
-        try:
-            self.cursor.execute('SELECT MAX(ID) FROM meals')
-            result = self.cursor.fetchone()[0]
-            if result is not None:
-                return int(result) + 1
-
-            else:
-                return 0
-        except sqlite3.OperationalError:
-            return 0
 
     def load_food_data(self, file):
 
@@ -69,6 +58,11 @@ class Db:
         except sqlite3.OperationalError:
             pass
 
+        try:
+            self.init_days()
+        except sqlite3.OperationalError:
+            pass
+
     def init_food(self):
 
         try:
@@ -77,7 +71,7 @@ class Db:
                   'Carbohydrates' REAL, 'Total Sugar' REAL,
                   'Total Fat' REAL, 'Saturated Fats' REAL,
                   'Fiber' REAL,  'Protein' REAL, 'Salt' REAL)
-                  """.replace('\n','')
+                  """.replace('\n', '')
             self.cursor.execute(sql)
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
@@ -89,6 +83,12 @@ class Db:
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
 
+    def init_days(self):
+
+        try:
+            self.cursor.execute('CREATE TABLE days (ID INTEGER PRIMARY KEY, day, entry, serving size)')
+        except sqlite3.OperationalError:
+            raise sqlite3.OperationalError('Initialization already completed')
     def init_calendar(self):
 
         dlist = []
@@ -122,7 +122,8 @@ class Db:
 
     def insert_meal(self, name, ingredients: dict, serving):
 
-        self.cursor.execute(f'INSERT INTO meals VALUES(\'{self._mid}\',\'{name}\',\'{str(ingredients)}\', \'{serving}\')')
+        sql = f'INSERT INTO meals VALUES(\'{self._mid}\',\'{name}\',\'{str(ingredients)}\', \'{serving}\')'
+        self.cursor.execute(sql)
         self.connection.commit()
         self._mid += 1
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
@@ -210,6 +211,19 @@ class Db:
                 full = self.cursor.fetchall()
                 result = [item for item in full if search == item[2]]
                 return result
+
+    def get_day(self, search='all'):
+
+        if search == 'all':
+            self.cursor.execute('SELECT * FROM days')
+            result = self.cursor.fetchall()
+            return result
+
+        if search in self._days:
+            self.cursor.execute(f'SELECT * FROM days WHERE (Day = \'{search}\')')
+
+        else:
+            raise ValueError('Day is non existent or formatted wrong. Day format should be \'Sat 2023-07-22\'')
 
     def update_fentry(self, values):
         update = [value for value in values if value[0] in self._fentry.keys() and len(value) == 2]
