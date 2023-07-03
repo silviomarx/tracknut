@@ -118,6 +118,7 @@ class Db:
 
     def insert_meal(self, name, ingredients: dict, serving):
 
+
         sql = f'INSERT INTO meals VALUES(\'{self._mid}\',\'{name}\',\'{str(ingredients)}\', \'{serving}\')'
         self.cursor.execute(sql)
         self.connection.commit()
@@ -129,10 +130,15 @@ class Db:
         if not entry:
             entry = self._dentry.values()
 
-        dtvstring = ','.join(['\'' + str(item) + '\'' for item in entry])
-        self.cursor.execute(f'INSERT INTO days ({self._did},{dtvstring}')
-        self._did += 1
-        self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'entry', 'serving size'])}
+        if 'NA' in entry:
+            raise ValueError('Entry is not complete')
+
+        else:
+            dtvstring = ','.join(['\'' + str(item) + '\'' for item in entry])
+            sql = f'INSERT INTO days VALUES (\'{self._did}\', {dtvstring})'
+            self.cursor.execute(sql)
+            self._did += 1
+            self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'entry', 'serving size'])}
 
     def go_to_day(self, day: str):
 
