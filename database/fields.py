@@ -7,7 +7,7 @@ class Fields:
             open('database/fields', 'xt').close()
             # Insert standard fields
             with open('database/fields', 'wt') as file:
-                stdfields = [item + ', \n' for item in ['Name','Category','Calories',
+                stdfields = [item + ', \n' for item in ['ID', 'Name','Category','Calories',
                                                         'Carbohydrates', 'Total Sugar',
                                                         'Total Fat', 'Saturated Fats',
                                                         'Fiber', 'Protein', 'Salt']]

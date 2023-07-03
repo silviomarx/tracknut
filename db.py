@@ -114,8 +114,8 @@ class Db:
         else:
             ftv = entry
 
-        ftvstring = ', '.join(['\'' + str(item) + '\'' for item in ftv])
-        self.cursor.execute(f'INSERT INTO food VALUES(\'{self._fid}\',{ftvstring})')
+        ftvstring = ','.join(['\'' + str(item) + '\'' for item in ftv])
+        self.cursor.execute(f'INSERT INTO food VALUES({self._fid}, {ftvstring})')
         self.connection.commit()
         self._fid += 1
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
