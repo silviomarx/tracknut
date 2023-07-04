@@ -29,6 +29,13 @@ class Db:
 
     def get_max_id(self, table: str):
 
+        """
+        Gets the maximum ID of the specified table and raises it by one to prepare for the passing of a new entry.
+        If the table is empty or non existent returns 0 instead.
+        :param table: 'food', 'fdata', 'meals' or 'days'
+        :return: maxid + 1 or 0 if table empty or non existent
+        """
+
         try:
             self.cursor.execute(f'SELECT MAX(ID) FROM {table}')
             result = self.cursor.fetchone()[0]
@@ -43,9 +50,20 @@ class Db:
 
     def load_food_data(self, file):
 
+        """
+        Loads the food data from a csv file and passes it into the fdata table for further usage.
+        :param file: path to csvfile which contains fooddata
+        :return: None
+        """
+
         initialize(file)
 
     def setup_tables(self):
+        """
+        Tries to create the tables for food, meals and days by calling each tables init_x function.
+        :return: None
+        """
+
 
         try:
             self.init_food()
@@ -63,7 +81,10 @@ class Db:
             pass
 
     def init_food(self):
-
+        """
+        Creates the food table in the tracknut database.
+        :return: None
+        """
         try:
             sql = """CREATE TABLE food ('ID' INTEGER PRIMARY KEY,
                   'Name' TEXT, 'Category' TEXT, 'Calories' REAL, 
@@ -76,6 +97,10 @@ class Db:
             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_meals(self):
+        """
+        Creates the meal table in the tracknut database.
+        :return: None
+        """
 
         try:
             self.cursor.execute('CREATE TABLE meals (ID INTEGER PRIMARY KEY, name, ingredients, serving size)')
@@ -83,13 +108,20 @@ class Db:
             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_days(self):
-
+        """
+        Creates the days table in the tracknut database.
+        :return: None
+        """
         try:
             self.cursor.execute('CREATE TABLE days (ID INTEGER PRIMARY KEY, day, entry, serving size)')
         except sqlite3.OperationalError:
             raise sqlite3.OperationalError('Initialization already completed')
 
     def init_calendar(self):
+        """
+        Creates a list of days in the format 'Wkd yyyy-mm-dd' as template to pass values to the days table.
+        :return: None
+        """
 
         dlist = []
         start = datetime.date(2000, 1, 1)
@@ -105,10 +137,20 @@ class Db:
 
         return dlist
 
-    def insert_food(self, entry=None):
+    def insert_food(self, entry: list = None):
+
+        """
+        Inserts a food entry into the tracknut food database. The entry parameter is set to None by default and will
+        use the private self._fentry variable to pass the value to the database. If entry is specified, it needs to
+        be a list of values for each column in the food database, except the ID. By default those columns are:
+        Name, Category, Calories, Carbohydrates, Total Sugar, Total Fat, Saturated Fats, Fiber, Protein, Salt
+        :param entry: None (self._fentry is used) or list of values: [Name, Cat, kcal, carbs, sugar, total fat, sat.fat,
+        fiber, protein, salt]
+        :return: None
+        """
 
         if not entry:
-            entry = self._fentry.values()
+            entry = list(self._fentry.values())
 
         values = [self._fid] + entry
         sql = 'INSERT INTO food VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
@@ -117,7 +159,17 @@ class Db:
         self._fid += 1
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
 
-    def insert_meal(self, name, ingredients: dict, serving):
+    def insert_meal(self, name: str , ingredients: dict, serving: int | float):
+
+        """
+        Inserts a meal entry into the tracknut database. The ID is generated automatically, only name, ingredients dict
+        and serving size need to be provided
+
+        :param name: string of desired meal name
+        :param ingredients: dict of ingredients from the food database. Keys are food IDs, values are amount in gram.
+        :param serving: serving size in gram
+        :return: None
+        """
 
         values = [str(self._mid), name, str(ingredients), str(serving)]
         sql = f'INSERT INTO meals VALUES(?, ?, ?, ?)'
@@ -126,7 +178,7 @@ class Db:
         self._mid += 1
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
 
-    def insert_in_day(self, entry=None):
+    def insert_in_day(self, entry: list = None):
 
         if not entry:
             entry = self._dentry.values()
