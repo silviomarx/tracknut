@@ -110,17 +110,17 @@ class Db:
         if not entry:
             entry = self._fentry.values()
 
-        ftvstring = ','.join(['\'' + str(item) + '\'' for item in entry])
-        self.cursor.execute(f'INSERT INTO food VALUES({self._fid}, {ftvstring})')
+        values = [self._fid] + entry
+        self.cursor.execute(f'INSERT INTO food VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', values)
         self.connection.commit()
         self._fid += 1
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
 
     def insert_meal(self, name, ingredients: dict, serving):
 
-
-        sql = f'INSERT INTO meals VALUES(\'{self._mid}\',\'{name}\',\'{str(ingredients)}\', \'{serving}\')'
-        self.cursor.execute(sql)
+        values = [str(self._mid), name, str(ingredients), str(serving)]
+        sql = f'INSERT INTO meals VALUES(?, ?, ?, ?)'
+        self.cursor.execute(sql, values)
         self.connection.commit()
         self._mid += 1
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
