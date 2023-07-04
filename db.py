@@ -111,7 +111,8 @@ class Db:
             entry = self._fentry.values()
 
         values = [self._fid] + entry
-        self.cursor.execute(f'INSERT INTO food VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', values)
+        sql = 'INSERT INTO food VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        self.cursor.execute(sql, values)
         self.connection.commit()
         self._fid += 1
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
@@ -134,9 +135,9 @@ class Db:
             raise ValueError('Entry is not complete')
 
         else:
-            dtvstring = ','.join(['\'' + str(item) + '\'' for item in entry])
-            sql = f'INSERT INTO days VALUES (\'{self._did}\', {dtvstring})'
-            self.cursor.execute(sql)
+            values = [self._did] + entry
+            sql = f'INSERT INTO days VALUES (?, ?, ?, ?)'
+            self.cursor.execute(sql, values)
             self._did += 1
             self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'entry', 'serving size'])}
 
@@ -189,7 +190,7 @@ class Db:
             if not strict:
                 self.cursor.execute('SELECT * FROM meals')
                 full = self.cursor.fetchall()
-                result = [item for item in full if search in item[2]]
+                result = [item for item in full if search in item[1]]
                 return result
 
             elif strict:
