@@ -64,7 +64,6 @@ class Db:
         :return: None
         """
 
-
         try:
             self.init_food()
         except sqlite3.OperationalError:
@@ -159,7 +158,7 @@ class Db:
         self._fid += 1
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
 
-    def insert_meal(self, name: str , ingredients: dict, serving: int | float) -> None:
+    def insert_meal(self, name: str, ingredients: dict, serving: int | float) -> None:
 
         """
         Inserts a meal entry into the tracknut database. The ID is generated automatically, only name, ingredients dict
@@ -215,7 +214,7 @@ class Db:
         else:
             raise ValueError('Day does not exist. Format of day should resemble: Sat 2023-07-22')
 
-    def get_food(self, search: str | int ='all', strict=False) -> list | tuple:
+    def get_food(self, search: str | int = 'all', strict=False) -> list | tuple:
         """
         Fetches items from the food table based on the value of the search parameter. The standard value of
         search is 'all', which fetches all the values from the database. If another string is specified, only values
@@ -235,7 +234,6 @@ class Db:
         elif type(search) == int:
             self.cursor.execute(f'SELECT * FROM food WHERE(ID = {search})')
             result = self.cursor.fetchone()
-            result = {k: v for (k, v) in map(lambda x, y: (x, y), self.fields, result)}
             return result
 
         elif type(search) == str:
@@ -251,7 +249,7 @@ class Db:
                 result = [item for item in full if search == item[2]]
                 return result
 
-    def get_meal(self, search='all', strict=False) -> list | tuple :
+    def get_meal(self, search='all', strict=False) -> list | tuple:
         """
         Fetches items from the meals table based on the value of the search parameter. The standard value of
         search is 'all', which fetches all the items from the database. If another string is specified, only values
@@ -303,7 +301,6 @@ class Db:
         elif type(search) == int:
             self.cursor.execute(f'SELECT * FROM fooddata WHERE(ID = {search})')
             result = self.cursor.fetchone()
-            result = {k: v for (k, v) in map(lambda x, y: (x, y), ['ID'] + self.fields, result)}
             return result
 
         elif type(search) == str:
@@ -320,7 +317,7 @@ class Db:
                 result = [item for item in full if search == item[2]]
                 return result
 
-    def get_day(self, search: str ='all') -> list:
+    def get_day(self, search: str = 'all') -> list:
         """
         Fetches all items appended to day(s) in the days table based on the search parameter. The standard parameter
         'all' fetches all entries from the food database. If a day value is passed in the format Wkd yyyy-mm-dd only
