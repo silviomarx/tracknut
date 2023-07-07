@@ -23,7 +23,7 @@ class Db:
         self._mid = self.get_max_id('meals')
         self._did = self.get_max_id('days')
 
-        self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
+        self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields[1:])}
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
         self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'entry', 'serving size'])}
 
@@ -179,7 +179,13 @@ class Db:
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
 
     def insert_in_day(self, entry: list = None):
+        """
+        Inserts a meal or food entry into the database on the given day. Those entries are later used to generate the
+        daily summary of the nutrition intake. If entry is not specified, the self._dentry variable is used.
 
+        :param entry: None (self._dentry is used) or list of [day, entry, serving size]
+        :return: None
+        """
         if not entry:
             entry = self._dentry.values()
 
@@ -195,13 +201,31 @@ class Db:
 
     def go_to_day(self, day: str):
 
+        """
+        Checks the format and sets the day value of the self._dentry variable.
+        Used to browse through the database for fetching and passing entries.
+
+        :param day: Day to be set in the format Wkd yyyy-mm-dd , example: Sat 2023-07-22
+        :return: None
+        """
+
         if day in self._days:
             self._dentry['day'] = day
 
         else:
             raise ValueError('Day does not exist. Format of day should resemble: Sat 2023-07-22')
 
-    def get_food(self, search='all', strict=False):
+    def get_food(self, search: str | int ='all', strict=False):
+        """
+        Fetches items from the food table based on the value of the search parameter. The standard value of
+        search is 'all', which fetches all the values from the database. If another string is specified, only values
+        containing that string in the name are fetched. If strict is set to True,
+        the string must match the name exactly. If an integer is passed, value with the unique ID of set integer is
+        returned.
+        :param search: 'all', string (search by name) or integer (search by ID)
+        :param strict: False (string in item name) or False (string == item name)
+        :return: list of tuples or tuple of item(s) matching search parameter.
+        """
 
         if search == 'all':
             self.cursor.execute('SELECT * FROM food')
@@ -228,7 +252,16 @@ class Db:
                 return result
 
     def get_meal(self, search='all', strict=False):
-
+        """
+        Fetches items from the meals table based on the value of the search parameter. The standard value of
+        search is 'all', which fetches all the items from the database. If another string is specified, only values
+        containing that string in the name are fetched. If strict is set to True,
+        the string must match the name exactly. If an integer is passed, value with the unique ID of set integer is
+        returned.
+        :param search: 'all', string (search by name) or integer (search by ID)
+        :param strict: False (string in item name) or False (string == item name)
+        :return: list of tuples or tuple of item(s) matching search parameter
+        """
         if search == 'all':
             self.cursor.execute('SELECT * FROM meals')
             return self.cursor.fetchall()
@@ -252,6 +285,16 @@ class Db:
                 return result
 
     def get_fdata(self, search='all', strict=False):
+        """
+        Fetches items from the from fooddata table based on the value of the search parameter. The standard value of
+        search is 'all', which fetches all the items from the database. If another string is specified, only values
+        containing that string in the name are fetched. If strict is set to True,
+        the string must match the name exactly. If an integer is passed, value with the unique ID of set integer is
+        returned.
+        :param search: 'all', string (search by name) or integer (search by ID)
+        :param strict: False (string in item name) or False (string == item name)
+        :return: list of tuples or tuple of item(s) matching search parameter
+        """
 
         if search == 'all':
             self.cursor.execute('SELECT * FROM fooddata')
@@ -277,8 +320,14 @@ class Db:
                 result = [item for item in full if search == item[2]]
                 return result
 
-    def get_day(self, search='all'):
-
+    def get_day(self, search: str ='all') -> list:
+        """
+        Fetches all items appended to day(s) in the days table based on the search parameter. The standard parameter
+        'all' fetches all entries from the food database. If a day value is passed in the format Wkd yyyy-mm-dd only
+        entries appended to that day are returned.
+        :param search: 'all' or day in format 'Wkd yyy-mm-dd', example Sat 2023-07-22.
+        :return: list of items appended to day(s) in days table
+        """
         if search == 'all':
             self.cursor.execute('SELECT * FROM days')
             result = self.cursor.fetchall()
@@ -290,14 +339,39 @@ class Db:
         else:
             raise ValueError('Day is non existent or formatted wrong. Day format should be \'Sat 2023-07-22\'')
 
-    def update_fentry(self, values):
+    def update_fentry(self, values: list) -> None:
+        """
+        Update the self._fentry variable for later passing into the database tables. The update needs to be a list of
+        tuples, where the first item specifies the key and the second item specifies the value.
+        Possible keys are 'Name', 'Category', 'Calories',
+        'Carbohydrates', 'Total Sugar', 'Total Fat', 'Saturated Fats', 'Fiber', 'Protein', 'Salt'
+        :param values: list of tuples example [('Name', 'Tofu'), ('Total Fat', 12)]
+        :return: None
+        """
         update = [value for value in values if value[0] in self._fentry.keys() and len(value) == 2]
         self._fentry.update(update)
 
-    def update_mentry(self, values):
+    def update_mentry(self, values: list) -> None:
+        """
+        Update the self._mentry variable for later passing into the database tables. The update needs to be a list of
+        tuples, where the first item specifies the key and the second item specifies the value. The ingredients value
+        must be a dict of IDs from the food table with corresponding amounts in gram.
+        Possible keys are 'name', 'ingredients', 'serving size'
+        :param values: list of tuples example [('name', 'Tofu with Veggies'), ('Ingedients', {'5': 22.4, '2' : 43.2})]
+        :return: None
+        """
+
         update = [value for value in values if value[0] in self._mentry.keys() and len(value) == 2]
         self._mentry.update(update)
 
     def update_dentry(self, values):
+        """
+        Update the self._mentry variable for later passing into the database tables. The update needs to be a list of
+        tuples, where the first item specifies the key and the second item specifies the value. Entry specifies the ID
+        of food or meal passed into the database.
+        Possible keys are 'day', 'entry', 'serving size'
+        :param values: list of tuples example [('day', 'Sat 2023-07-22'), ('entry', '5')]
+        :return: None
+        """
         update = [value for value in values if value[0] in self._dentry.keys() and len(value) == 2]
         self._dentry.update(update)
