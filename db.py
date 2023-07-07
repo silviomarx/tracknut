@@ -48,7 +48,7 @@ class Db:
         except sqlite3.OperationalError:
             return 0
 
-    def load_food_data(self, file):
+    def load_food_data(self, file: str):
 
         """
         Loads the food data from a csv file and passes it into the fdata table for further usage.
@@ -137,7 +137,7 @@ class Db:
 
         return dlist
 
-    def insert_food(self, entry: list = None):
+    def insert_food(self, entry: list = None) -> None:
 
         """
         Inserts a food entry into the tracknut food database. The entry parameter is set to None by default and will
@@ -159,7 +159,7 @@ class Db:
         self._fid += 1
         self._fentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), self.fields)}
 
-    def insert_meal(self, name: str , ingredients: dict, serving: int | float):
+    def insert_meal(self, name: str , ingredients: dict, serving: int | float) -> None:
 
         """
         Inserts a meal entry into the tracknut database. The ID is generated automatically, only name, ingredients dict
@@ -178,7 +178,7 @@ class Db:
         self._mid += 1
         self._mentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['name', 'ingredients', 'serving size'])}
 
-    def insert_in_day(self, entry: list = None):
+    def insert_in_day(self, entry: list = None) -> None:
         """
         Inserts a meal or food entry into the database on the given day. Those entries are later used to generate the
         daily summary of the nutrition intake. If entry is not specified, the self._dentry variable is used.
@@ -199,7 +199,7 @@ class Db:
             self._did += 1
             self._dentry = {k: v for (k, v) in map(lambda x: (x, 'NA'), ['day', 'entry', 'serving size'])}
 
-    def go_to_day(self, day: str):
+    def go_to_day(self, day: str) -> None:
 
         """
         Checks the format and sets the day value of the self._dentry variable.
@@ -215,7 +215,7 @@ class Db:
         else:
             raise ValueError('Day does not exist. Format of day should resemble: Sat 2023-07-22')
 
-    def get_food(self, search: str | int ='all', strict=False):
+    def get_food(self, search: str | int ='all', strict=False) -> list | tuple:
         """
         Fetches items from the food table based on the value of the search parameter. The standard value of
         search is 'all', which fetches all the values from the database. If another string is specified, only values
@@ -251,7 +251,7 @@ class Db:
                 result = [item for item in full if search == item[2]]
                 return result
 
-    def get_meal(self, search='all', strict=False):
+    def get_meal(self, search='all', strict=False) -> list | tuple :
         """
         Fetches items from the meals table based on the value of the search parameter. The standard value of
         search is 'all', which fetches all the items from the database. If another string is specified, only values
@@ -284,7 +284,7 @@ class Db:
                 result = [item for item in full if search == item[2]]
                 return result
 
-    def get_fdata(self, search='all', strict=False):
+    def get_fdata(self, search='all', strict=False) -> list | tuple:
         """
         Fetches items from the from fooddata table based on the value of the search parameter. The standard value of
         search is 'all', which fetches all the items from the database. If another string is specified, only values
@@ -364,7 +364,7 @@ class Db:
         update = [value for value in values if value[0] in self._mentry.keys() and len(value) == 2]
         self._mentry.update(update)
 
-    def update_dentry(self, values):
+    def update_dentry(self, values): -> None
         """
         Update the self._mentry variable for later passing into the database tables. The update needs to be a list of
         tuples, where the first item specifies the key and the second item specifies the value. Entry specifies the ID
