@@ -364,7 +364,7 @@ class Db:
         update = [value for value in values if value[0] in self._mentry.keys() and len(value) == 2]
         self._mentry.update(update)
 
-    def update_dentry(self, values): -> None
+    def update_dentry(self, values) -> None:
         """
         Update the self._mentry variable for later passing into the database tables. The update needs to be a list of
         tuples, where the first item specifies the key and the second item specifies the value. Entry specifies the ID
